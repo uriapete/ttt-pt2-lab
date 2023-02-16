@@ -34,32 +34,45 @@ const rows = document.querySelectorAll(".row")
 
 class player {
     name;
+    color;
     isTurn;
     intWins;
-    constructor(nam, defTurn) {
+    constructor(nam, col, defTurn) {
         this.name = nam;
+        this.color = col;
         this.isTurn = defTurn;
         this.intWins = 0;
     }
 }
 
-const playerX = new player('X', true);
-const playerO = new player('O', false);
+const playerX = new player('X', "blue", true);
+const playerO = new player('O', "orange", false);
 
-function clearBoard() {
+const playerList = [playerO, playerX];
+let playerTurn=true;
+
+function clearBoard(winCol) {
     for (let i = 0; i < squares.length; i++) {
         // const element = array[i];
         squares[i].innerHTML='';
-        
+        for (let j = 0; j < playerList.length; j++) {
+            // const element = playerList[j];
+            squares[i].classList.remove(playerList[j].color);
+            squares[i].classList.remove(winCol);
+        }
     }
 }
 
-function checkIfWon() {
+function checkIfWon(winner, winCol) {
     for (const row of rows) {
         const squareRow = row.querySelectorAll(".square");
         if (squareRow[0].innerHTML === squareRow[1].innerHTML && squareRow[1].innerHTML === squareRow[2].innerHTML && squareRow[0].innerHTML !== '') {
             console.log("win")
-            setTimeout(clearBoard,2000);
+            // setTimeout(clearBoard,2000);
+            for (let i = 0; i < squareRow.length; i++) {
+                const square = squareRow[i];
+                square.classList.add(winCol);
+            }
             return true;
         };
     }
@@ -67,52 +80,74 @@ function checkIfWon() {
         // const element = array[i];
         if (squares[i].innerHTML === squares[i+3].innerHTML &&squares[i+3].innerHTML === squares[i+6].innerHTML && squares[i+3].innerHTML !== '') {
             console.log("win")
-            setTimeout(clearBoard,2000);
+            // setTimeout(clearBoard,2000);
+            for (let j = i; j < 9; j+=3) {
+                const square = squares[j];
+                square.classList.add(winCol);
+            }
             return true;
         };
     }
     if (squares[0].innerHTML === squares[4].innerHTML &&squares[4].innerHTML === squares[8].innerHTML && squares[4].innerHTML !== '') {
         console.log("win")
-        setTimeout(clearBoard,2000);
+        // setTimeout(clearBoard,2000);
         return true;
     } else if (squares[2].innerHTML === squares[4].innerHTML &&squares[4].innerHTML === squares[6].innerHTML && squares[4].innerHTML !== '') {
         console.log("win")
-        setTimeout(clearBoard,2000);
+        // setTimeout(clearBoard,2000);
         return true;
     };
 
 }
 
-function allowMove(square) {
-    // console.log("click");
+function allowMove(square, winCol) {
+    console.log("click");
     // console.log(playerX);
     // console.log(playerO);
-    if (playerX.isTurn && square.innerHTML === '') {
-        square.innerHTML = "X";
-        playerX.isTurn = !playerX.isTurn;
-        playerO.isTurn = !playerO.isTurn;
-        // console.log(playerX);
-        // console.log(playerO);
-        return true;
-    }
-    else if (playerO.isTurn && square.innerHTML === '') {
-        square.innerHTML = "O";
-        playerX.isTurn = !playerX.isTurn;
-        playerO.isTurn = !playerO.isTurn;
-        // console.log(playerX);
-        // console.log(playerO);
-        return true;
+    // if (playerX.isTurn && square.innerHTML === '') {
+    //     square.innerHTML = "X";
+    //     playerX.isTurn = !playerX.isTurn;
+    //     playerO.isTurn = !playerO.isTurn;
+    //     // console.log(playerX);
+    //     // console.log(playerO);
+    //     return true;
+    // }
+    // else if (playerO.isTurn && square.innerHTML === '') {
+    //     square.innerHTML = "O";
+    //     playerX.isTurn = !playerX.isTurn;
+    //     playerO.isTurn = !playerO.isTurn;
+    //     // console.log(playerX);
+    //     // console.log(playerO);
+    //     return true;
+    // }
+    let moveAllowed = false;
+    if (square.innerHTML === '') {
+        square.innerHTML = playerList[Number(playerTurn)].name;
+        square.classList.add(playerList[Number(playerTurn)].color)
+        // console.log(square.classList)
+        // console.log(typeof(square.classList))
+        playerTurn=!playerTurn
+        moveAllowed = true;
     }
     // console.log(playerX);
     // console.log(playerO);
+    if (moveAllowed){
+        if(checkIfWon(playerList[Number(!playerTurn)], winCol)) {return playerList[Number(!playerTurn)]};
+    }
+    return false;
 }
 
 for (let i = 0; i < squares.length; i++) {
     const square = squares[i];
     square.addEventListener("click", () => {
-        if(allowMove(square)){
-            checkIfWon();
-        };
+        // if(allowMove(square)){
+        //     checkIfWon();
+        // };
+        if (allowMove(square, "purple") != false) {
+            setTimeout(() => {
+                clearBoard("purple");
+            },2000);
+        }
     });
     
 }
